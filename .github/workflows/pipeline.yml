@@ -1,4 +1,4 @@
-name: CodeNest Build
+name: CodeNest Build and Push
 
 on:
   push:
@@ -14,6 +14,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
 
       - name: Checkout Code
@@ -28,3 +32,16 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean install
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/codenestgh:latest .
+
+      - name: Push Docker Image to GHCR
+        run: docker push ghcr.io/${{ github.repository_owner }}/codenestgh:latest
