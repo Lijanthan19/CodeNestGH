@@ -66,8 +66,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker Image
-        run: docker build -t ghcr.io/lijanthan19/CodeNestGH:latest .
+        run: docker build -t ghcr.io/lijanthan19/codenestgh:latest .
 
       - name: Push Docker Image to GHCR
-        run: docker push ghcr.io/lijanthan19/CodeNestGH:latest
+        run: docker push ghcr.io/lijanthan19/codenestgh:latest
 
