@@ -117,6 +117,13 @@ jobs:
           aws-region: eu-central-1
           role-session-name: GitHubActionsCodeNest
 
+      - name: Check GitHub Context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Workflow: ${{ github.workflow }}"
       - name: Check AWS Identity
         run: |
           aws sts get-caller-identity
