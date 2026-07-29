@@ -1,4 +1,4 @@
-name: CodeNest Build, Push and Deploy
+name: Pipeline 1 CodeNest Build, Push and Deploy usinf AWS CLI
 
 on:
   push:
