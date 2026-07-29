@@ -1,7 +1,6 @@
 name: Pipeline 2 CodeNest Deploy using SSM
-
 on:
-  pull_request:
+  push:
     branches:
       - main
 
