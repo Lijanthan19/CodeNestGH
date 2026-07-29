@@ -116,3 +116,18 @@ jobs:
       - name: Check AWS Identity
         run: |
           aws sts get-caller-identity
+          
+      # Deploy Docker Container to EC2
+      - name: Deploy CodeNest to EC2 using SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "i-028c25eff8c7497dd" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy CodeNest application" \
+            --parameters 'commands=[
+              "docker pull ghcr.io/lijanthan19/codenestgh:latest",
+              "docker stop codenest || true",
+              "docker rm codenest || true",
+              "docker run -d --name codenest -p 50050:50050 ghcr.io/lijanthan19/codenestgh:latest"
+            ]' \
+            --output text
