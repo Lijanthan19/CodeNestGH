@@ -104,25 +104,19 @@ jobs:
       contents: read
 
     steps:
+
       - name: Check AWS Role ARN
         run: |
           echo "AWS Role ARN is configured: ${{ vars.AWS_ROLE_ARN != '' }}"
+          echo "Repository: ${{ github.repository }}"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: eu-central-1
+          role-session-name: GitHubActionsCodeNest
 
-      - name: Deploy CodeNest to EC2 using SSM
+      - name: Check AWS Identity
         run: |
-          aws ssm send-command \
-            --instance-ids "i-028c25eff8c7497dd" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy CodeNest application" \
-            --parameters 'commands=[
-              "docker pull ghcr.io/lijanthan19/codenestgh:latest",
-              "docker stop codenest || true",
-              "docker rm codenest || true",
-              "docker run -d --name codenest -p 50050:50050 ghcr.io/lijanthan19/codenestgh:latest"
-            ]' \
-            --output text
+          aws sts get-caller-identity
