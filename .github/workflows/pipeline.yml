@@ -1,4 +1,4 @@
-name: CodeNest Build and Push
+name: CodeNest Build, Push and Deploy
 
 on:
   push:
@@ -11,8 +11,13 @@ on:
 
 jobs:
 
+  # ==========================================
+  # BUILD STAGE
+  # ==========================================
+
   build:
-    name: Build Maven Application
+    name: Build Java Application
+
     runs-on: ubuntu-latest
 
     steps:
@@ -37,11 +42,16 @@ jobs:
           path: target/*.jar
 
 
+  # ==========================================
+  # DOCKER STAGE
+  # ==========================================
+
   docker:
     name: Build and Push Docker Image
-    runs-on: ubuntu-latest
 
     needs: build
+
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -66,8 +76,50 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker Image
-        run: docker build -t ghcr.io/lijanthan19/codenestgh:latest .
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/codenestgh:latest .
 
       - name: Push Docker Image to GHCR
-        run: docker push ghcr.io/lijanthan19/codenestgh:latest
+        run: |
+          docker push \
+            ghcr.io/${{ github.repository_owner }}/codenestgh:latest
 
+
+  # ==========================================
+  # DEPLOY STAGE
+  # ==========================================
+
+  deploy:
+    name: Deploy to EC2
+
+    needs: docker
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Deploy CodeNest to EC2 using SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "i-028c25eff8c7497dd" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy CodeNest application" \
+            --parameters 'commands=[
+              "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}",
+              "docker pull ghcr.io/${{ github.repository_owner }}/codenestgh:latest",
+              "docker stop codenest || true",
+              "docker rm codenest || true",
+              "docker run -d --name codenest -p 50050:50050 ghcr.io/${{ github.repository_owner }}/codenestgh:latest"
+            ]' \
+            --output text
