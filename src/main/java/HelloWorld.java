@@ -11,7 +11,8 @@ public class HelloWorld {
     public static void main(String[] args) throws IOException {
 
         HttpServer server = HttpServer.create(
-                new InetSocketAddress("localhost", 50050), 0
+                //new InetSocketAddress("localhost", 50050), 0
+                new InetSocketAddress("0.0.0.0", 50050)
         );
 
         server.createContext("/", exchange -> {
