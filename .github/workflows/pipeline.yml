@@ -104,6 +104,9 @@ jobs:
       contents: read
 
     steps:
+      - name: Check AWS Role ARN
+        run: |
+          echo "AWS Role ARN is configured: ${{ vars.AWS_ROLE_ARN != '' }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
