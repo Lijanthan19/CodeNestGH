@@ -53,6 +53,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    if: github.event_name == 'push'
+
     permissions:
       contents: read
       packages: write
@@ -78,12 +80,12 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/codenestgh:latest .
+            -t ghcr.io/lijanthan19/codenestgh:latest .
 
       - name: Push Docker Image to GHCR
         run: |
           docker push \
-            ghcr.io/${{ github.repository_owner }}/codenestgh:latest
+            ghcr.io/lijanthan19/codenestgh:latest
 
 
   # ==========================================
@@ -116,10 +118,9 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy CodeNest application" \
             --parameters 'commands=[
-              "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}",
-              "docker pull ghcr.io/${{ github.repository_owner }}/codenestgh:latest",
+              "docker pull ghcr.io/lijanthan19/codenestgh:latest",
               "docker stop codenest || true",
               "docker rm codenest || true",
-              "docker run -d --name codenest -p 50050:50050 ghcr.io/${{ github.repository_owner }}/codenestgh:latest"
+              "docker run -d --name codenest -p 50050:50050 ghcr.io/lijanthan19/codenestgh:latest"
             ]' \
             --output text
