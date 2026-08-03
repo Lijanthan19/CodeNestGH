@@ -1,4 +1,4 @@
-name: Pipeline 1 CodeNest Build, Push and Deploy usinf AWS CLI
+name: Pipeline 1 CodeNest Build, Push and Deploy using AWS CLI
 
 on:
   push:
@@ -130,8 +130,9 @@ jobs:
       - name: Deploy CodeNest to EC2 using SSM
         shell: bash
         run: |
+
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "i-028c25eff8c7497dd" \
+            --instance-ids "i-0abba6aec05d28a4a" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy CodeNest application" \
             --parameters 'commands=[
@@ -149,15 +150,16 @@ jobs:
 
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "i-028c25eff8c7497dd"
+            --instance-id "i-0abba6aec05d28a4a"
 
           echo "Getting deployment result..."
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
-            --instance-id "i-028c25eff8c7497dd" \
+            --instance-id "i-0abba6aec05d28a4a" \
             --query "{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}" \
             --output json
+
 
       # ==========================================
       # CHECK APPLICATION
@@ -166,8 +168,9 @@ jobs:
       - name: Check Application
         shell: bash
         run: |
+
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "i-028c25eff8c7497dd" \
+            --instance-ids "i-0abba6aec05d28a4a" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "docker ps -a",
@@ -181,12 +184,12 @@ jobs:
 
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "i-028c25eff8c7497dd"
+            --instance-id "i-0abba6aec05d28a4a"
 
           echo "Application Check Result:"
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
-            --instance-id "i-028c25eff8c7497dd" \
+            --instance-id "i-0abba6aec05d28a4a" \
             --query "{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}" \
             --output json
