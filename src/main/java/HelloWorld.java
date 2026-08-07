@@ -117,7 +117,7 @@ public class HelloWorld {
 
                         <header>
                             <h1>CodeNest</h1>
-                            <p>Java Maven Web Application</p>
+                            <p>Java Maven Web Application v2</p>
                         </header>
 
                         <div class="container">
